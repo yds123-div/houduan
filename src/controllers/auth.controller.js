@@ -1,23 +1,13 @@
-import { register, login } from '../services/auth.service.js';
-
+// 认证控制器 —— 脚手架阶段，暂返回占位数据
+// 后续接入真实逻辑：注册用户 / 校验密码 / 生成 JWT / 登出
 export default {
-  register: async (req, res, next) => {
-    try {
-      const user = await register(req.body);
-      res.status(201).json(user);
-    } catch (err) {
-      next(err);
-    }
+  signUp: (req, res) => {
+    res.send({ title: 'sign up' });
   },
-  login: async (req, res, next) => {
-    try {
-      const result = await login(req.body);
-      if (!result) {
-        return res.status(401).json({ error: 'Invalid email or password' });
-      }
-      res.json(result);
-    } catch (err) {
-      next(err);
-    }
+  signIn: (req, res) => {
+    res.send({ title: 'sign in' });
+  },
+  signOut: (req, res) => {
+    res.send({ title: 'sign out' });
   },
 };

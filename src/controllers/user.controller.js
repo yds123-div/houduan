@@ -1,42 +1,19 @@
-import { list, get, create, update, remove } from '../services/user.service.js';
-
+// 用户控制器 —— 脚手架阶段，暂返回占位数据
+// 后续接入真实逻辑：数据库读写 / 权限校验等
 export default {
-  list: async (req, res, next) => {
-    try {
-      res.json(await list());
-    } catch (err) {
-      next(err);
-    }
+  list: (req, res) => {
+    res.send({ title: 'get all users' });
   },
-  get: async (req, res, next) => {
-    try {
-      const item = await get(req.params.id);
-      if (!item) return res.status(404).json({ error: 'User not found' });
-      res.json(item);
-    } catch (err) {
-      next(err);
-    }
+  get: (req, res) => {
+    res.send({ title: 'get user details' });
   },
-  create: async (req, res, next) => {
-    try {
-      res.status(201).json(await create(req.body));
-    } catch (err) {
-      next(err);
-    }
+  create: (req, res) => {
+    res.send({ title: 'create user' });
   },
-  update: async (req, res, next) => {
-    try {
-      res.json(await update(req.params.id, req.body));
-    } catch (err) {
-      next(err);
-    }
+  update: (req, res) => {
+    res.send({ title: 'update user' });
   },
-  remove: async (req, res, next) => {
-    try {
-      await remove(req.params.id);
-      res.status(204).end();
-    } catch (err) {
-      next(err);
-    }
+  remove: (req, res) => {
+    res.send({ title: 'delete user' });
   },
 };

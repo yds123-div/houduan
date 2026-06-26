@@ -1,50 +1,28 @@
-import {
-  list,
-  get,
-  create,
-  update,
-  remove,
-} from '../services/subscription.service.js';
-
+// 订阅控制器 —— 脚手架阶段，暂返回占位数据
+// 后续接入真实逻辑：数据库读写 / 续费计算 / 取消逻辑等
 export default {
-  list: async (req, res, next) => {
-    try {
-      res.json(await list());
-    } catch (err) {
-      next(err);
-    }
+  list: (req, res) => {
+    res.send({ title: 'get all subscriptions' });
   },
-  get: async (req, res, next) => {
-    try {
-      const item = await get(req.params.id);
-      if (!item) return res.status(404).json({ error: 'Subscription not found' });
-      res.json(item);
-    } catch (err) {
-      next(err);
-    }
+  get: (req, res) => {
+    res.send({ title: 'get subscription details' });
   },
-  create: async (req, res, next) => {
-    try {
-      res.status(201).json(await create(req.body));
-    } catch (err) {
-      next(err);
-    }
+  create: (req, res) => {
+    res.send({ title: 'create subscription' });
   },
-  update: async (req, res, next) => {
-    try {
-      const item = await update(req.params.id, req.body);
-      if (!item) return res.status(404).json({ error: 'Subscription not found' });
-      res.json(item);
-    } catch (err) {
-      next(err);
-    }
+  update: (req, res) => {
+    res.send({ title: 'update subscription' });
   },
-  remove: async (req, res, next) => {
-    try {
-      await remove(req.params.id);
-      res.status(204).end();
-    } catch (err) {
-      next(err);
-    }
+  remove: (req, res) => {
+    res.send({ title: 'delete subscription' });
+  },
+  listByUser: (req, res) => {
+    res.send({ title: 'get all user subscriptions' });
+  },
+  cancel: (req, res) => {
+    res.send({ title: 'cancel subscription' });
+  },
+  upcomingRenewals: (req, res) => {
+    res.send({ title: 'get upcoming renewals' });
   },
 };
