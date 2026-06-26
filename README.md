@@ -41,3 +41,10 @@ npm test         # 运行测试
 | POST | /api/users | 创建用户 |
 | PUT | /api/users/:id | 更新用户 |
 | DELETE | /api/users/:id | 删除用户 |
+| POST | /api/auth/register | 注册账号 |
+| POST | /api/auth/login | 登录 |
+| GET | /api/subscriptions | 订阅列表 |
+| GET | /api/subscriptions/:id | 订阅详情 |
+| POST | /api/subscriptions | 创建订阅 |
+| PUT | /api/subscriptions/:id | 更新订阅 |
+| DELETE | /api/subscriptions/:id | 删除订阅 |
