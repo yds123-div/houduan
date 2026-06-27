@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 
 import routes from './src/routes/index.js';
@@ -11,8 +12,9 @@ const app = express();
 
 // 基础中间件
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); // 解析 JSON 请求体，让 req.body 能拿到 JSON 数据
+app.use(express.urlencoded({ extended: false })); // 解析传统表单提交的数据
+app.use(cookieParser()); // 解析请求中的 cookies
 if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
