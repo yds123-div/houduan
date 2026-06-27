@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 // 用户模型
 const userSchema = new mongoose.Schema(
@@ -29,6 +30,23 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// pre-save 钩子：保存前自动哈希密码
+// 必须用普通 function（不能用箭头函数），this 才会指向当前文档
+// 仅在密码字段被修改时才哈希，避免重复哈希或改动其他字段时误伤密码
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    return next();
+  }
+  try {
+    // 生成盐并哈希密码，cost 因子用 10（兼顾安全与性能）
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 const User = mongoose.model('User', userSchema);
 

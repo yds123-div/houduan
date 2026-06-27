@@ -1,9 +1,43 @@
 // 认证控制器
 // 路由只负责定义接口路径，具体业务逻辑放在 controller 中。
-// 后续接入真实逻辑：注册用户 / 校验密码 / 生成 JWT / 登出
+// 当前已接入：signUp 注册逻辑（密码哈希交给 user.model.js 的 pre-save 钩子）
+// 待接入：signIn 校验密码并签发 JWT / signOut 清除 token
+import jwt from 'jsonwebtoken';
+import User from '../models/user.model.js';
+import { JWT_SECRET, JWT_EXPIRES_IN } from '../config/env.js';
+import ErrorResponse from '../utils/ErrorResponse.js';
+
+// 注册：读取请求体 -> 检查邮箱是否已存在 -> 创建用户（密码由模型钩子自动哈希）-> 签发 JWT -> 返回 201
+// 说明：signUp 只写入单个 User 文档，MongoDB 单文档写入本身就是原子的，
+//       因此这里不使用事务；待将来出现「一次操作写多文档」的场景再启用事务（届时 Mongo 也需为副本集）。
 export const signUp = async (req, res, next) => {
-  // TODO: 读取请求体 -> 检查用户是否存在 -> 加密密码 -> 创建记录 -> 生成 JWT -> 返回
-  res.send({ title: '注册' });
+  const { name, email, password } = req.body;
+
+  try {
+    // 提前检查邮箱是否已注册，给出更友好的 409 提示（唯一索引也会兜底抛 11000）
+    const existing = await User.findOne({ email });
+    if (existing) {
+      throw new ErrorResponse('该邮箱已被注册', 409);
+    }
+
+    // 创建用户；密码会在 pre-save 钩子中被自动哈希后再落库
+    const user = await User.create({ name, email, password });
+
+    // 签发 JWT，载荷里放用户 id，过期时间由环境变量控制
+    const token = jwt.sign({ id: user._id }, JWT_SECRET, {
+      expiresIn: JWT_EXPIRES_IN,
+    });
+
+    // 返回时剔除密码字段，避免敏感信息外泄
+    const { password: _password, ...userWithoutPassword } = user.toObject();
+
+    res.status(201).json({
+      success: true,
+      data: { user: userWithoutPassword, token },
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const signIn = async (req, res, next) => {
