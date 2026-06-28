@@ -30,6 +30,12 @@ const userSchema = new mongoose.Schema(
       minLength: 6,
       select: false,
     },
+    // 角色：user 普通用户 / admin 管理员，默认普通用户
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
+    },
   },
   { timestamps: true }
 );
