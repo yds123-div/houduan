@@ -31,7 +31,7 @@ const signUpAndGetToken = async (email = 'tester@example.com') => {
   return { token: res.body.data.token, userId: res.body.data.user._id };
 };
 
-describe('POST /api/v1/subscriptions —— 创建订阅', () => {
+describe('订阅接口 —— 集成测试（连真实 MongoDB）', () => {
   // 整个测试套件开始前连一次库
   beforeAll(async () => {
     await mongoose.connect(DB_URI);
@@ -50,7 +50,8 @@ describe('POST /api/v1/subscriptions —— 创建订阅', () => {
     await mongoose.disconnect();
   });
 
-  it('带合法 token 创建订阅成功，返回 201 并带上当前用户 id', async () => {
+  describe('POST /api/v1/subscriptions —— 创建订阅', () => {
+    it('带合法 token 创建订阅成功，返回 201 并带上当前用户 id', async () => {
     const { token, userId } = await signUpAndGetToken();
 
     const res = await request(app)
@@ -102,5 +103,54 @@ describe('POST /api/v1/subscriptions —— 创建订阅', () => {
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
+  });
+  });
+
+  describe('GET /api/v1/subscriptions/user/:id —— 获取某用户的全部订阅', () => {
+    // 用当前登录用户的 token + 其 id 发起查询的辅助函数
+    const getSubscriptions = (token, userId) =>
+      request(app)
+        .get(`/api/v1/subscriptions/user/${userId}`)
+        .set('Authorization', `Bearer ${token}`);
+
+    it('查看本人的订阅，返回 200 及该用户的订阅列表', async () => {
+      const { token, userId } = await signUpAndGetToken();
+
+      // 先为该用户创建一条订阅
+      await request(app)
+        .post('/api/v1/subscriptions')
+        .set('Authorization', `Bearer ${token}`)
+        .send(validSubscription);
+
+      const res = await getSubscriptions(token, userId);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.data).toHaveLength(1);
+      // 返回的订阅应归属当前用户
+      expect(String(res.body.data[0].user)).toBe(String(userId));
+    });
+
+    it('查看别人的订阅返回 403', async () => {
+      // 注册两个不同用户
+      const alice = await signUpAndGetToken('alice@example.com');
+      const bob = await signUpAndGetToken('bob@example.com');
+
+      // alice 用自己的 token 去查 bob 的订阅 -> 应被拒绝
+      const res = await getSubscriptions(alice.token, bob.userId);
+
+      expect(res.status).toBe(403);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('未带 token 时返回 401', async () => {
+      const res = await request(app).get(
+        `/api/v1/subscriptions/user/000000000000000000000000`
+      );
+
+      expect(res.status).toBe(401);
+      expect(res.body.success).toBe(false);
+    });
   });
 });

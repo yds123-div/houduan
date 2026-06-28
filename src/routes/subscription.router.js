@@ -17,7 +17,8 @@ const router = express.Router();
 // 注意：固定路径须排在动态 /:id 之前，否则会被当成 id 参数匹配
 router.get('/', list);
 router.get('/upcoming-renewals', upcomingRenewals);
-router.get('/user/:id', listByUser);
+// 查看某用户的订阅需要登录：protect 提供 req.user，controller 内再校验 :id 是否为本人
+router.get('/user/:id', protect, listByUser);
 router.get('/:id', get);
 // 创建订阅需要登录：先过 protect 拿到 req.user，再进 controller
 router.post('/', protect, createSubscription);
