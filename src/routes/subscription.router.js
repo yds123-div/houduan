@@ -1,8 +1,9 @@
 import express from 'express';
+import protect from '../middlewares/auth.middleware.js';
 import {
   list,
   get,
-  create,
+  createSubscription,
   update,
   remove,
   listByUser,
@@ -18,7 +19,8 @@ router.get('/', list);
 router.get('/upcoming-renewals', upcomingRenewals);
 router.get('/user/:id', listByUser);
 router.get('/:id', get);
-router.post('/', create);
+// 创建订阅需要登录：先过 protect 拿到 req.user，再进 controller
+router.post('/', protect, createSubscription);
 router.put('/:id/cancel', cancel);
 router.put('/:id', update);
 router.delete('/:id', remove);

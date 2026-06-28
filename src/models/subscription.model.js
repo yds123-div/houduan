@@ -90,7 +90,9 @@ const subscriptionSchema = new mongoose.Schema(
 // 1) 若未传 renewalDate，按 frequency 自动计算续费日期
 // 2) 若续费日期已过，自动将状态置为 expired
 // 注意：必须用普通 function，才能通过 this 访问/修改当前文档字段
-subscriptionSchema.pre('save', function (next) {
+//       Mongoose 9 的 pre-save 同步钩子不再注入 next 回调，执行完自动继续
+//       （与 user.model.js 的 pre-save 注释一致）
+subscriptionSchema.pre('save', function () {
   // 未传续费日期时，按扣费频率自动计算（天数）
   if (!this.renewalDate) {
     const renewalPeriods = {
@@ -109,8 +111,6 @@ subscriptionSchema.pre('save', function (next) {
   if (this.renewalDate < new Date()) {
     this.status = 'expired';
   }
-
-  next();
 });
 
 const Subscription = mongoose.model('Subscription', subscriptionSchema);
