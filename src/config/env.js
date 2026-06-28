@@ -5,6 +5,9 @@ export const PORT = process.env.PORT || 3000;
 export const DB_URI = process.env.MONGO_URL;
 export const JWT_SECRET = process.env.JWT_SECRET;
 export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
+// Arcjet（速率限制 / 机器人 / 攻击防护）；未配置时不强制报错，中间件会跳过防护
+export const ARCJET_KEY = process.env.ARCJET_KEY;
+export const ARCJET_ENV = process.env.ARCJET_ENV;
 
 if (!DB_URI) {
   throw new Error('请在 .env 中定义 MONGO_URL 环境变量');

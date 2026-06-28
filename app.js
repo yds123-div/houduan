@@ -6,6 +6,7 @@ import 'dotenv/config';
 
 import routes from './src/routes/index.js';
 import errorHandler from './src/middlewares/errorHandler.js';
+import arcjetMiddleware from './src/middlewares/arcjet.middleware.js';
 import connectToDatabase from './src/database/mongodb.js';
 
 const app = express();
@@ -17,6 +18,12 @@ app.use(express.urlencoded({ extended: false })); // 解析传统表单提交的
 app.use(cookieParser()); // 解析请求中的 cookies
 if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
+}
+
+// Arcjet 安全防护（速率限制 / 机器人 / 攻击防护）
+// 放在基础中间件之后、路由之前，对所有请求生效；未配置 key 时自动跳过
+if (process.env.NODE_ENV !== 'test') {
+  app.use(arcjetMiddleware);
 }
 
 // 首页路由

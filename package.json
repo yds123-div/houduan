@@ -5,6 +5,14 @@
   "type": "module",
   "private": true,
   "main": "app.js",
+  "nodemonConfig": {
+    "watch": [
+      "app.js",
+      "src",
+      ".env"
+    ],
+    "ext": "js,mjs,json,env"
+  },
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
@@ -16,6 +24,7 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "@arcjet/node": "^1.5.0",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
